@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    #customPrompt {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      width: 300px;
+      display: none;
+      /* Ẩn đi mặc định */
+      z-index: 1000;
+    }
+
+    #customPrompt h3 {
+      margin: 0 0 15px;
+      font-size: 18px;
+    }
+
+    #customPrompt label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    #customPrompt input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    #customPrompt button {
+      padding: 10px 15px;
+      margin-right: 10px;
+      border: none;
+      border-radius: 4px;
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+    }
+
+    #customPrompt button:hover {
+      background-color: #0056b3;
+    }
+
+    #customPrompt .cancel {
+      background-color: #ccc;
+      color: #333;
+    }
+
+    #customPrompt .cancel:hover {
+      background-color: #aaa;
+    }
+
+    #overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="overlay"></div>
+  <div id="customPrompt">
+    <h3>Login</h3>
+    <label for="username">Username:</label>
+    <input type="text" id="username" placeholder="Enter your username">
+    <label for="password">Password:</label>
+    <input type="password" id="password" placeholder="Enter your password">
+    <button onclick="submitLogin()">Submit</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="js/local-store.js"></script>
+
+  <script>
+    // Hiển thị prompt
+    function showPrompt() {
+      document.getElementById("customPrompt").style.display = "block";
+      document.getElementById("overlay").style.display = "block";
+    }
+
+    // Xử lý khi nhấn "Submit"
+    function submitLogin() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      if (!username || !password) {
+        alert("Please fill in both fields!");
+        return;
+      }
+
+      const token = encryptData(username, password);
+      const data = getLocalStorage(token);
+
+      if (!data) {
+        alert(`Account does not exist.`);
+        return;
+      }
+
+      hashData(username).then(hash => {
+        console.log(`username:`, hash);
+        setLocalStorage(`username`, hash);
+      });
+
+      hashData(password).then(hash => {
+        console.log(`password:`, hash);
+        setLocalStorage(`password`, hash);
+      });
+
+      window.location.href = "/index.html";
+    }
+
+    showPrompt();
+    initToken();
+  </script>
+
+</body>
+
+</html>
