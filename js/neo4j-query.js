@@ -1,23 +1,35 @@
 async function searchNeo4jData() {
+    const rs = await search(`MATCH (n {name: $nodeName})-[r*]->(connected) RETURN n, r, connected AS m`);
+    
+    if (rs.results.length && rs.results[0].data.length) {
+        return rs;
+    }
+
+    return search(`MATCH (n)-[r]->(m) WHERE toLower(n.name) =~ toLower($nodeName) RETURN n, r, m`);
+}
+
+async function search(query) {
     let nodeName = document.getElementById('search').value;
     console.log(`search: ${nodeName}`);
 
     if (!nodeName) {
         return [];
     }
-    // MATCH (n) WHERE toLower(n.name) =~ toLower('.*user.*') RETURN n
-    const result = await session.run(
-        `MATCH (n {name: $nodeName})-[r*]->(connected)
-        RETURN n, r, connected AS m`,
-        { nodeName }
-    );
+    const result = await session.run( query, { nodeName } );
+
+    const nodes = result.records.map(record => [record.get('n'), record.get('m')]).flat();
+    const relationships = result.records.map(record => record.get('r'))
+        .flat()
+        .filter((x, index, self) => {
+            const value = x.start.toString() + x.end.toString() + x.properties.name.toString();
+            return index === self.findIndex((r) => r.start.toString() + r.end.toString() + r.properties.name.toString() === value);
+        });
 
     const results = [
         {
-            data: result.records.map(record => {
-                const n = record.get('n');
-                const r = record.get('r');
-                const m = record.get('m');
+            data: relationships.map(r => {
+                const n = nodes.find(x => x.identity.toString() == r.start.toString());
+                const m = nodes.find(x => x.identity.toString() == r.end.toString());
 
                 return {
                     graph: {
@@ -27,26 +39,25 @@ async function searchNeo4jData() {
                         ],
                         relationships: [
                             {
-                                id: r[0].identity.toString(),
-                                type: r[0].type,
-                                startNode: n.identity.toString(),
-                                endNode: m.identity.toString(),
-                                properties: r[0].properties
+                                id: r.identity.toString(),
+                                type: r.type,
+                                startNode: r.start.toString(),
+                                endNode: r.end.toString(),
+                                properties: r.properties
                             }
-                        ]
+                        ],
                     }
                 };
             })
         }
     ];
 
-    
     return { results };
 }
 
 async function fetchNeo4jData() {
     try {
-        const result = await session.run('MATCH (n)-[r]->(m) RETURN n, r, m');
+        const result = await session.run(`MATCH (n)-[r]->(m) RETURN n, r, m`);
         nodesName = [];
         labels = [];
 
@@ -56,7 +67,7 @@ async function fetchNeo4jData() {
                     const n = record.get('n');
                     const r = record.get('r');
                     const m = record.get('m');
-                    
+
                     //add label to list
                     n.labels.map(label => {
                         if (!labels.includes(label)) {

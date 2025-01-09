@@ -5,6 +5,24 @@ async function initToken() {
     setLocalStorage('JUGmfalqehorNbYyOzvklg==', "onI1yCMxYOThm53odHJNpSMNJYB6LpoMqOU3qWuhn/qOzINbK43MQORbyxfhM/IkJRD7ck4rlwgXv7Fl6986cQ==");
 }
 
+function getProfile() {
+    const usernameHash = getLocalStorage(`username`);
+    const passHash = getLocalStorage(`password`);
+    if (!passHash || !usernameHash) {
+        return null;
+    }
+
+    // Check login
+    const token = encryptData(usernameHash, passHash);
+    let profile = decryptData(getLocalStorage('zS5IQnPer43SoiBBW2Hr9g=='), token);
+
+    if (!profile) {
+        profile = decryptData(getLocalStorage('JUGmfalqehorNbYyOzvklg=='), token);
+    }
+
+    return profile;
+}
+
 function setLocalStorage(key, value) {
     if (!key || value === undefined) {
         console.error("Key và Value không được để trống!");

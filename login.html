@@ -98,6 +98,7 @@
   <script src="js/local-store.js"></script>
 
   <script>
+    
     // Hiển thị prompt
     function showPrompt() {
       document.getElementById("customPrompt").style.display = "block";
@@ -135,8 +136,13 @@
       window.location.href = "index.html";
     }
 
-    showPrompt();
+    var profile = getProfile();
+    if (profile && profile.username && profile.pass) {
+      window.location.href = "index.html";
+    }
+
     initToken();
+    showPrompt();
   </script>
 
 </body>

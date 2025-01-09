@@ -43,21 +43,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script>
         //Check local store
-        const usernameHash = getLocalStorage(`username`);
-        const passHash = getLocalStorage(`password`);
-        if (!passHash || !usernameHash) {
-            window.location.href = "login.html";
-        }
-
-        // Check login
-        const token = encryptData(usernameHash, passHash);
-        let profile = decryptData(getLocalStorage('zS5IQnPer43SoiBBW2Hr9g=='), token);
-
+        var profile = getProfile();
         if (!profile) {
-            profile = decryptData(getLocalStorage('JUGmfalqehorNbYyOzvklg=='), token);
-            if (!profile) {
-                window.location.href = "login.html";
-            }
+            window.location.href = "login.html";
         }
 
         // START KẾT NỐI NEO4j

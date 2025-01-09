@@ -978,7 +978,7 @@
           neo4jDataToD3Data: neo4jDataToD3Data,
           size: size,
           resetWithNeo4jData: resetWithNeo4jData,
-          updateNodesAndRelationships:updateNodesAndRelationships,
+          updateNodesAndRelationships: updateNodesAndRelationships,
           version: version
         };
       }
