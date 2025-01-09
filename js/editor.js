@@ -105,14 +105,13 @@ function showRelationsEditor(obj = {}) {
             <form id="relationsEditorForm">
                 ${generateFormFields(obj)}
             </form>
-            ${profile?.role == 'admin'? `<button type="button" class="btn btn-primary" id="createRelations">Create</button>
+            ${profile?.role == 'admin' ? `<button type="button" class="btn btn-primary" id="createRelations">Create</button>
             <button type="button" class="btn btn-danger" id="deleteRelations">Delete</button>`: ''}
         </div>
     </div>`;
 
     container.innerHTML = modalHTML;
-    if (profile?.role == 'admin')
-    {
+    if (profile?.role == 'admin') {
         document.getElementById('createRelations').onclick = async () => {
             const formData = getFormData();
             if (formData.relationship) {
@@ -122,16 +121,16 @@ function showRelationsEditor(obj = {}) {
                 show('Relationship must not be empty', 'e');
             }
         };
-    
+
         document.getElementById('deleteRelations').onclick = async () => {
             const formData = getFormData();
             await deleteRelationship(obj.source.id, obj.target.id, formData.relationship)
-    
+
             neo4jd3.resetWithNeo4jData(await fetchNeo4jData());
         };
-    
+
     }
-    
+
     // Function to extract form data
     const getFormData = () => {
         const form = document.getElementById('relationsEditorForm');
@@ -271,7 +270,8 @@ textboxes.forEach((textbox) => {
             }
             searchNeo4jData().then(rs => {
                 neo4jd3.resetWithNeo4jData(rs);
-            })
+                sliceText();
+            });
         }
     });
 });
@@ -306,5 +306,44 @@ function show(message, type = 'success') {
 
     toastElement.addEventListener('hidden.bs.toast', () => {
         toastElement.remove();
+    });
+}
+
+function sliceText() {
+    const maxCharsPerLine = 12;
+    const maxLines = 3;
+
+    document.querySelectorAll('.node .text').forEach(function (element) {
+        const words = element.textContent.split(' ');
+        let formattedText = '';
+        let currentLine = '';
+        let tspanCount = 0;
+        let stopProcessing = false;
+
+        words.forEach((word) => {
+            if (stopProcessing) return;
+            if ((currentLine + word).length > maxCharsPerLine) {
+                tspanCount++;
+                if (tspanCount === maxLines) {
+                    //formattedText += `<tspan x="0" dy="1.2em">...</tspan>`;
+                    formattedText += `<tspan x="0" dy="1.2em">${currentLine.trim()}...</tspan>`;
+                    stopProcessing = true;
+                } else {
+                    formattedText += `<tspan x="0" dy="1.2em">${currentLine.trim()}</tspan>`;
+                    currentLine = word + ' ';
+                }
+            } else {
+                currentLine += word + ' ';
+            }
+        });
+
+        if (!stopProcessing && currentLine.trim() && tspanCount < maxLines) {
+            formattedText += `<tspan x="0" dy="1.2em">${currentLine.trim()}</tspan>`;
+            tspanCount++;
+        }
+
+        element.innerHTML = formattedText.trim();
+        const yValue = tspanCount * -1 + '%';
+        element.setAttribute('y', yValue);
     });
 }

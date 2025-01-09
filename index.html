@@ -94,7 +94,6 @@
                     }
                 },
                 onRelationshipClick: function (relationship) {
-                    //MATCH (u1:User {userId: "user4"})-[r:Is_Friend]-(u2:User {userId: "user1"}) DELETE r;
                     showRelationsEditor({
                         from: relationship.source.properties.name,
                         to: relationship.target.properties.name,
@@ -117,60 +116,6 @@
     <script src="js/editor.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    <script>
-        function sliceText() {
-            document.querySelectorAll('.text').forEach(function (element) {
-                if (element.textContent.length > 9) {
-                    element.textContent = element.textContent.slice(0, 9) + '...';
-                }
-            });
-        };
-
-
-        const url = 'http://42.96.37.189:7474/db/data/transaction/commit';
-        const username = 'neo4j'; // Thay bằng username của bạn
-        const password = 'abcd@1234'; // Thay bằng password của bạn
-        const databaseName = 'neo4j'; // Tên cơ sở dữ liệu của bạn
-
-        async function queryNeo4j(cypherQuery) {
-            const outputElement = document.getElementById('output');
-
-            try {
-                // Tạo HTTP request với Fetch API
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Basic ' + btoa(username + ':' + password) // Mã hóa Basic Auth
-                    },
-                    body: JSON.stringify({
-                        statements: [
-                            {
-                                statement: cypherQuery,
-                                parameters: {},
-                                resultDataContents: ["row", "graph"] // Định dạng kết quả (nếu cần)
-                            }
-                        ],
-                        database: databaseName // Chỉ định tên cơ sở dữ liệu
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                console.log(data.results); // Log ra console để kiểm tra
-                outputElement.textContent = JSON.stringify(data.results, null, 2); // Hiển thị kết quả trên trang
-            } catch (error) {
-                console.error('Error querying Neo4j:', error);
-                outputElement.textContent = `Error: ${error.message}`;
-            }
-        }
-
-        queryNeo4j('MATCH (n) RETURN n LIMIT 5');
-
-    </script>
 </body>
 
 </html>
