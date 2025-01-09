@@ -48,10 +48,10 @@
             window.location.href = "login.html";
         }
 
-        // START KẾT NỐI NEO4j
+        // START KẾT NỐI NEO4J
         const driver = window.neo4j.driver(
-            'bolt://42.96.37.189:7687',
-            window.neo4j.auth.basic(profile.username, profile.pass)
+            'neo4j://42.96.37.189:7687',
+            neo4j.auth.basic(profile.username, profile.pass),
         );
         const session = driver.session();
 
